@@ -22,16 +22,19 @@ async def forwarder(update: Update, _: ContextTypes.DEFAULT_TYPE) -> None:
     source = update.effective_chat
 
     if not message or not source:
-        return
+        return       
 
+    
+    message_text = message.text or message.caption or ""
+    
     dest = get_destination(source.id, message.message_thread_id)
 
     for config in dest:
 
-        if config.filters:
+        if config.filters and not predicate_text(config.filters, message_text):
             if not predicate_text(config.filters, message.text or ""):
                 return
-        if config.blacklist:
+        if config.blacklist and predicate_text(config.blacklist, message_text):
             if predicate_text(config.blacklist, message.text or ""):
                 return
 
