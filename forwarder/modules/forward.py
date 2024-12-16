@@ -31,12 +31,10 @@ async def forwarder(update: Update, _: ContextTypes.DEFAULT_TYPE) -> None:
 
     for config in dest:
 
-        if config.filters and not predicate_text(config.filters, message_text):
-            if not predicate_text(config.filters, message.text or ""):
-                return
-        if config.blacklist and predicate_text(config.blacklist, message_text):
-            if predicate_text(config.blacklist, message.text or ""):
-                return
+        if config.filters and not predicate_text(config.filters, message_text):            
+            return
+        if config.blacklist and predicate_text(config.blacklist, message_text):            
+            return
 
         for chat in config.destination:
             LOGGER.debug(f"Forwarding message {source.id} to {chat}")
