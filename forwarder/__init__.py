@@ -46,14 +46,22 @@ headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
 try:
     response = requests.get(config_url, headers=headers)
     response.raise_for_status()  # Raise an exception for HTTP errors
+    json_data = response.json()  # Get the JSON response
     
-    # Save the content of the JSON file to the local path
+    # The content is base64 encoded, so we need to decode it
+    encoded_content = json_data['content']
+    decoded_content = base64.b64decode(encoded_content).decode('utf-8')  # Decode base64 and convert to string
+    
+    # Save the decoded content to the local file
     with open(config_path, "w") as file:
-        file.write(response.text)
-    LOGGER.info("chat_list.json downloaded successfully!")
+        file.write(decoded_content)
+    
+    LOGGER.info(f"chat_list.json downloaded and decoded successfully!")
+    
 except requests.RequestException as e:
-    LOGGER.error(f"Error downloading chat_list.json: {e}")
+    LOGGER.error(f"Error downloading JSON file: {e}")
     exit(1)
+
 
 # Load the downloaded JSON file
 if not path.isfile(config_path):
