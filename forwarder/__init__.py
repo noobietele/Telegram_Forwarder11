@@ -18,6 +18,9 @@ LOGGER = logging.getLogger(__name__)
 httpx_logger = logging.getLogger('httpx')
 httpx_logger.setLevel(logging.WARNING)
 
+# GitHub personal access token (set directly in the code)
+GITHUB_TOKEN = "your_personal_access_token_here"
+
 # Define the URL for downloading the JSON file
 config_url = "https://example.com/path/to/chat_list.json"
 
@@ -31,13 +34,23 @@ config_path = path.join(download_directory, config_name)
 # Create the directory if it doesn't exist
 if not path.exists(download_directory):
     makedirs(download_directory)
+    
+# Check if GitHub token is provided
+if not GITHUB_TOKEN:
+    LOGGER.error("No GITHUB_TOKEN provided! Exiting...")
+    exit(1)
 
-# Download the JSON file from the URL
+# Fetch the JSON file from the private GitHub repository using the token
+headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
+
 try:
-    response = requests.get(config_url)
+    response = requests.get(config_url, headers=headers)
     response.raise_for_status()  # Raise an exception for HTTP errors
+    
+    # Save the content of the JSON file to the local path
     with open(config_path, "w") as file:
         file.write(response.text)
+    LOGGER.info("chat_list.json downloaded successfully!")
 except requests.RequestException as e:
     LOGGER.error(f"Error downloading chat_list.json: {e}")
     exit(1)
