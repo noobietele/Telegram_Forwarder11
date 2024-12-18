@@ -1,5 +1,6 @@
 import logging
 import json
+import base64 
 import requests
 from os import getenv, path, makedirs
 
